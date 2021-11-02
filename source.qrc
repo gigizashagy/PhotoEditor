@@ -68,5 +68,6 @@
         <file>icons/icon_rectangle.png</file>
         <file>icons/icon_star.png</file>
         <file>icons/icon_triangle.png</file>
+        <file>stylesheets/editor_style_sheet/rc/arrow_indicator.png</file>
     </qresource>
 </RCC>
