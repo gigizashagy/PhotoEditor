@@ -69,5 +69,16 @@
         <file>icons/icon_star.png</file>
         <file>icons/icon_triangle.png</file>
         <file>stylesheets/editor_style_sheet/rc/arrow_indicator.png</file>
+        <file>icons/Close.png</file>
+        <file>icons/info.png</file>
+        <file>icons/PE.png</file>
+        <file>icons/redo.png</file>
+        <file>icons/reset.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/Tray.png</file>
+        <file>icons/undo.png</file>
+        <file>icons/close.png</file>
+        <file>icons/full_screen.png</file>
+        <file>icons/tray.png</file>
     </qresource>
 </RCC>

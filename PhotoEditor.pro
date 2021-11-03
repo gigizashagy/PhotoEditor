@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     MainWindow.cpp \
-    widgets/ColorPickButton.cpp
+    widgets/ColorPickButton.cpp \
+    widgets/WindowTitleBar.cpp
 
 HEADERS += \
     MainWindow.h \
-    widgets/ColorPickButton.h
+    widgets/ColorPickButton.h \
+    widgets/WindowTitleBar.h
 
 FORMS += \
     MainWindow.ui

@@ -7,12 +7,20 @@
 #include <QMenu>
 
 #include "widgets/ColorPickButton.h"
+#include "widgets/WindowTitleBar.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    //setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    m_TitleBar = new WindowTitleBar(this);
+    ui->verticalLayout_7->insertWidget(0, m_TitleBar);
+
+
+
+
 
     statusBar()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     m_ColorButton = new ColorPickButton(ui->centralwidget);
@@ -31,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->FileButton->setMenu(fileMenu);
     ui->OutlineWidget->layout()->addWidget(m_ColorButton);
     imageWidget = new QLabel();
-   // ui->scrollArea->setWidget(imageWidget);
+    // ui->scrollArea->setWidget(imageWidget);
     connect(m_ColorButton, &QAbstractButton::pressed, this, &MainWindow::showColorDialog);
 }
 

@@ -9,6 +9,7 @@ QT_END_NAMESPACE
 
 class ColorPickButton;
 class QLabel;
+class WindowTitleBar;
 
 class MainWindow : public QMainWindow
 {
@@ -25,5 +26,6 @@ private:
 
     ColorPickButton* m_ColorButton;
     QLabel* imageWidget;
+    WindowTitleBar* m_TitleBar;
 };
 #endif // MAINWINDOW_H
