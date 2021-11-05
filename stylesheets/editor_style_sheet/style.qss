@@ -4,9 +4,6 @@ QWidget
     background-color: #1D1D1E;
     selection-background-color: #396280;
     selection-color: #f5f5f5;
-    /*background-clip: border;*/
- /*   border: 0px solid transparent;*/
-
     font-family: "Roboto";
     font-size: 14px;
 }
@@ -32,10 +29,16 @@ QWidget:disabled
     color: #646464;
 }
 
+QMainWindow
+{
+    border: 1px solid #808080;
+}
+
 QMenuBar:focus
 {
     border: 0px solid #292A2B;
 }
+
 
 
 /* SCROLL */
@@ -167,64 +170,6 @@ QRadioButton
     outline: none;
     margin-bottom: 2px;
 }
-
-QRadioButton:disabled
-{
-}
-QRadioButton::indicator
-{
-    width: 21px;
-    height: 21px;
-}
-
-QRadioButton::indicator:unchecked,
-QRadioButton::indicator:unchecked:hover
-{
-    image: url(:/stylesheets/editor_style_sheet/rc/radio_unchecked.png);
-}
-
-QRadioButton::indicator:unchecked:focus,
-QRadioButton::indicator:unchecked:pressed
-{
-  border: none;
-  outline: none;
-    image: url(:/stylesheets/editor_style_sheet/rc/radio_unchecked_focus.png);
-}
-
-QRadioButton::indicator:checked,
-QRadioButton::indicator:checked:hover
-{
-  border: none;
-  outline: none;
-    image: url(:/stylesheets/editor_style_sheet/rc/radio_checked.png);
-}
-
-QRadioButton::indicator:checked:focus,
-QRadioButton::indicato::menu-arrowr:checked:pressed
-{
-  border: none;
-  outline: none;
-    image: url(:/stylesheets/editor_style_sheet/rc/radio_checked_focus.png);
-}
-
-QRadioButton::indicator:indeterminate,
-QRadioButton::indicator:indeterminate:hover,
-QRadioButton::indicator:indeterminate:pressed
-{
-        image: url(:/stylesheets/editor_style_sheet/rc/radio_indeterminate.png);
-}
-
-QRadioButton::indicator:checked:disabled
-{
-  outline: none;
-  image: url(:/stylesheets/editor_style_sheet/rc/radio_checked_disabled.png);
-}
-
-QRadioButton::indicator:unchecked:disabled
-{
-    image: url(:/stylesheets/editor_style_sheet/rc/radio_unchecked_disabled.png);
-}
-
 
 QMenuBar
 {
@@ -545,13 +490,18 @@ QFrame
     /*background: #292A2C;*/
     border-color: #292A2C;
 }
-
-QWidget#scrollAreaWidgetContents
+QScrollArea
+{
+    border: 0px solid #292A2C;
+    background: #141415;
+}
+/*
+QWidget#EditWidget
 {
     border: 0px solid #292A2C;
     background: #141415;  
 }
-
+*/
 QStackedWidget
 {
     border: 1px red black;
@@ -627,6 +577,7 @@ QPushButton
 }
 QPushButton:flat
 {
+    border-radius: 0px;
     background: transparent;
 }
 QPushButton:hover 
@@ -649,6 +600,11 @@ QPushButton::menu-indicator
     right: 5px;
     subcontrol-origin: padding;
     subcontrol-position: center right;
+}
+
+QPushButton::checked
+{
+    background: #2D3B22;
 }
 
 /* CopyButton */
@@ -691,6 +647,11 @@ QPushButton#CopyButton:disabled
 QPushButton#PipetteButton, ColorPickButton
 {
     border-radius:20px;
+}
+
+QPushButton#CloseButton:hover
+{
+    background: #E81123;
 }
 
 QComboBox

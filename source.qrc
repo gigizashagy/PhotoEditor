@@ -57,10 +57,6 @@
         <file>stylesheets/editor_style_sheet/rc/copy_disabled.png</file>
         <file>stylesheets/editor_style_sheet/rc/copy_hover.png</file>
         <file>stylesheets/editor_style_sheet/rc/copy_pressed.png</file>
-        <file>stylesheets/editor_style_sheet/rc/redo.png</file>
-        <file>stylesheets/editor_style_sheet/rc/reset.png</file>
-        <file>stylesheets/editor_style_sheet/rc/undo.png</file>
-        <file>stylesheets/editor_style_sheet/rc/pipette.png</file>
         <file>icons/icon_arrow.png</file>
         <file>icons/icon_circle.png</file>
         <file>icons/icon_pencile.png</file>
@@ -69,7 +65,6 @@
         <file>icons/icon_star.png</file>
         <file>icons/icon_triangle.png</file>
         <file>stylesheets/editor_style_sheet/rc/arrow_indicator.png</file>
-        <file>icons/Close.png</file>
         <file>icons/info.png</file>
         <file>icons/PE.png</file>
         <file>icons/redo.png</file>
@@ -80,5 +75,6 @@
         <file>icons/close.png</file>
         <file>icons/full_screen.png</file>
         <file>icons/tray.png</file>
+        <file>icons/down_screen.png</file>
     </qresource>
 </RCC>

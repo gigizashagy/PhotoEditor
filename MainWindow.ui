@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
-    <height>685</height>
+    <width>1077</width>
+    <height>831</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -273,8 +273,8 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>35</x>
-           <y>42</y>
+           <x>158</x>
+           <y>115</y>
            <width>445</width>
            <height>507</height>
           </rect>
@@ -294,8 +294,8 @@
          <widget class="QWidget" name="verticalLayoutWidget">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>10</y>
+            <x>-80</x>
+            <y>-30</y>
             <width>1656</width>
             <height>928</height>
            </rect>
@@ -304,25 +304,6 @@
            <property name="spacing">
             <number>0</number>
            </property>
-           <item>
-            <widget class="QLabel" name="label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="pixmap">
-              <pixmap>testimage.jpg</pixmap>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
           </layout>
          </widget>
         </widget>

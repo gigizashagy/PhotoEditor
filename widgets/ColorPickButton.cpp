@@ -57,6 +57,7 @@ void ColorPickButton::drawCircle(QPainter *painter)
     const float penWith = diameter * PEN_SIZE_COEFFITIENT;
     const auto halfPen = penWith / 2;
     const QRectF circleRect = QRect(content.topLeft(), QSize(diameter, diameter)) - QMarginsF(halfPen, halfPen, halfPen, halfPen);
+    painter->setRenderHint(QPainter::Antialiasing);
 
     if (m_IsEmptyColor)
     {
