@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 
+#include <QApplication>
 #include <QLayout>
 #include <QColorDialog>
 #include <QFileDialog>
@@ -10,16 +11,15 @@
 #include <QButtonGroup>
 #include <QScrollArea>
 #include <QStatusBar>
-#include <QDebug>
 
 #include "widgets/ToolButton.h"
 #include "widgets/ColorPickButton.h"
 #include "widgets/WindowTitleBar.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-
     setWindowFlags (Qt::FramelessWindowHint | windowFlags());
     setWindowTitle("Photo Editor 1.0");
     setWindowIcon(QIcon(":/icons/PE.png"));
@@ -50,10 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setStatusBar(new QStatusBar(this));
     statusBar()->setObjectName(QString::fromUtf8("StatusBar"));
     statusBar()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-}
 
-MainWindow::~MainWindow()
-{
 }
 
 void MainWindow::showColorDialog()
@@ -72,7 +69,7 @@ void MainWindow::openFileDialog()
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open file"), QString(), "*.png, *.jpg");
     if (!filePath.isEmpty())
     {
-        m_EditWidget->setPixmap(QPixmap(filePath).scaled(834, 468));
+        m_EditWidget->setPixmap(QPixmap(filePath));
     }
 }
 
@@ -92,7 +89,7 @@ QWidget *MainWindow::createHeaderBar()
     m_FileButton->setFixedSize(QSize(70, 40));
     m_FileButton->setFlat(true);
 
-    QMenu* fileMenu = new QMenu(headerWidget);
+    QMenu* fileMenu = new QMenu(m_FileButton);
     fileMenu->addAction(tr("Open file"), this, &MainWindow::openFileDialog, QKeySequence::Open);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("Save"), [](){}, QKeySequence::Save);
@@ -101,6 +98,7 @@ QWidget *MainWindow::createHeaderBar()
     fileMenu->addSeparator();
     fileMenu->addAction(tr("Print"), [](){}, QKeySequence::Print);
     m_FileButton->setMenu(fileMenu);
+
 
     const QSize editButtonSize(40, 40);
     const QSize editIconSize(24, 24);
@@ -199,8 +197,7 @@ QWidget *MainWindow::createToolsButtonsPanel()
     QLabel* toolsLabel = new QLabel(toolsWidget);
     toolsLabel->setObjectName(QString::fromUtf8("ToolsLabel"));
     toolsLabel->setText(tr("Draw Tools"));
-    QFont font;
-    font.setFamily(QString::fromUtf8("Roboto"));
+    QFont font(toolsLabel->font());
     font.setPointSize(16);
     font.setWeight(75);
     toolsLabel->setFont(font);
@@ -216,6 +213,7 @@ QWidget *MainWindow::createToolsButtonsPanel()
     buttonGroup->addButton(createToolsButton(QIcon(":/icons/icon_circle.png"), toolsWidget));
     buttonGroup->addButton(createToolsButton(QIcon(":/icons/icon_triangle.png"), toolsWidget));
     buttonGroup->addButton(createToolsButton(QIcon(":/icons/icon_star.png"), toolsWidget));
+    buttonGroup->buttons().first()->setChecked(true);
 
     for (const auto button : buttonGroup->buttons())
         toolBoxHLayout->addWidget(button);
@@ -242,8 +240,7 @@ QWidget *MainWindow::createOpacityProperty(const QString& toolName)
     QWidget* container = new QWidget(centralWidget());
 
     QLabel *toolLabel = new QLabel(toolName, container);
-    QFont font;
-    font.setFamily(QString::fromUtf8("Roboto"));
+    QFont font(toolLabel->font());
     font.setPointSize(14);
     font.setWeight(50);
     toolLabel->setFont(font);
@@ -289,7 +286,6 @@ QWidget *MainWindow::createColorProperty(const QString& toolName)
 
     QLabel* toolLabel = new QLabel(toolName, container);
     QFont font(toolLabel->font());
-   // font.setFamily(QString::fromUtf8("Roboto"));
     font.setPointSize(14);
     font.setWeight(50);
     toolLabel->setFont(font);
