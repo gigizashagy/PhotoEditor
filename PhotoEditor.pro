@@ -10,12 +10,14 @@ SOURCES += \
     main.cpp \
     MainWindow.cpp \
     widgets/ColorPickButton.cpp \
+    widgets/FileMenu.cpp \
     widgets/ToolButton.cpp \
     widgets/WindowTitleBar.cpp
 
 HEADERS += \
     MainWindow.h \
     widgets/ColorPickButton.h \
+    widgets/FileMenu.h \
     widgets/ToolButton.h \
     widgets/WindowTitleBar.h
 

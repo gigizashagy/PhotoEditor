@@ -11,25 +11,36 @@
 #include <QButtonGroup>
 #include <QScrollArea>
 #include <QStatusBar>
+#include <QGraphicsDropShadowEffect>
 
 #include "widgets/ToolButton.h"
 #include "widgets/ColorPickButton.h"
 #include "widgets/WindowTitleBar.h"
-
+#include "widgets/FileMenu.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
     setWindowFlags (Qt::FramelessWindowHint | windowFlags());
+    setAttribute(Qt::WA_TranslucentBackground);
+
     setWindowTitle("Photo Editor 1.0");
     setWindowIcon(QIcon(":/icons/PE.png"));
     setCentralWidget(new QWidget(this));
     centralWidget()->setObjectName(QString::fromUtf8("CentralWidget"));
-    this->setContentsMargins(1, 1, 1, 1);
+    this->setContentsMargins(0, 0, 8, 8);
     QVBoxLayout *centralVLayout = new QVBoxLayout(centralWidget());
     centralVLayout->setSpacing(0);
     centralVLayout->setMargin(0);
     centralWidget()->setLayout(centralVLayout);
+
+    QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
+    QColor blurColor(Qt::black);
+    blurColor.setAlpha(75);
+    effect->setColor(blurColor);
+    effect->setBlurRadius(16);
+    effect->setOffset(4);
+    setGraphicsEffect(effect);
 
     // Title
     m_TitleBar = new WindowTitleBar(this);
@@ -89,12 +100,14 @@ QWidget *MainWindow::createHeaderBar()
     m_FileButton->setFixedSize(QSize(70, 40));
     m_FileButton->setFlat(true);
 
-    QMenu* fileMenu = new QMenu(m_FileButton);
+    QMenu* fileMenu = new FileMenu(m_FileButton);
+
+    fileMenu->setContentsMargins(6,12,6,6);
     fileMenu->addAction(tr("Open file"), this, &MainWindow::openFileDialog, QKeySequence::Open);
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("Save"), [](){}, QKeySequence::Save);
-    auto actionSaveAs = fileMenu->addAction(tr("Save as..."), [](){}, QKeySequence(Qt::SHIFT + Qt::CTRL + Qt::Key_S));
-    actionSaveAs->setEnabled(false);
+    auto actionSave = fileMenu->addAction(tr("Save"), [](){}, QKeySequence::Save);
+    actionSave->setEnabled(false);
+    fileMenu->addAction(tr("Save as..."), [](){}, QKeySequence(Qt::SHIFT + Qt::CTRL + Qt::Key_S));
     fileMenu->addSeparator();
     fileMenu->addAction(tr("Print"), [](){}, QKeySequence::Print);
     m_FileButton->setMenu(fileMenu);
