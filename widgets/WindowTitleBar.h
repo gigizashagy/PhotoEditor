@@ -19,17 +19,21 @@ private:
 public:
     explicit WindowTitleBar(QWidget *widget = nullptr);
 
+    QList<QWidget*> getWhiteListWidgets();
+
+    Q_SIGNAL void minimizeButtonPress();
+    Q_SIGNAL void maximizeButtonPress();
+    Q_SIGNAL void closeButtonPress();
+
 private:
     QPushButton* createButton(const QIcon& icon, QSize iconSize, QSize buttonSize);
     void updateMaximize();
     // QWidget interface
+
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseDoubleClickEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-
     QPushButton *m_MinimizeButton;
     QPushButton *m_MaximizeButton;
     QPushButton *m_CloseButton;

@@ -13,42 +13,49 @@
 #include <QStatusBar>
 #include <QGraphicsDropShadowEffect>
 
+#include <qdebug.h>
+
 #include "widgets/ToolButton.h"
 #include "widgets/ColorPickButton.h"
 #include "widgets/WindowTitleBar.h"
 #include "widgets/FileMenu.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)
-{
-    setWindowFlags (Qt::FramelessWindowHint | windowFlags());
-    setAttribute(Qt::WA_TranslucentBackground);
+#ifdef Q_OS_WIN
+#pragma comment (lib, "user32.lib")
+#pragma comment (lib, "Dwmapi.lib")
+#include <windowsx.h>
+#include <dwmapi.h>
+#endif
 
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    m_bJustMaximized(false),
+    m_borderWidth(1),
+    m_Margins(1,2,1,1)
+{
+    initWinParams();
+    resize(1366, 756);
     setWindowTitle("Photo Editor 1.0");
     setWindowIcon(QIcon(":/icons/PE.png"));
     setCentralWidget(new QWidget(this));
     centralWidget()->setObjectName(QString::fromUtf8("CentralWidget"));
-    this->setContentsMargins(0, 0, 8, 8);
     QVBoxLayout *centralVLayout = new QVBoxLayout(centralWidget());
     centralVLayout->setSpacing(0);
     centralVLayout->setMargin(0);
     centralWidget()->setLayout(centralVLayout);
-
-    QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
-    QColor blurColor(Qt::black);
-    blurColor.setAlpha(75);
-    effect->setColor(blurColor);
-    effect->setBlurRadius(16);
-    effect->setOffset(4);
-    setGraphicsEffect(effect);
+    setContentsMargins(m_Margins);
 
     // Title
     m_TitleBar = new WindowTitleBar(this);
+    m_TitleBar->setObjectName(QString::fromUtf8("Title"));
     installEventFilter(m_TitleBar);
     centralVLayout->addWidget(m_TitleBar);
     centralVLayout->addWidget(createLine(HorizontalLine, centralWidget()));
     centralVLayout->addWidget(createHeaderBar());
     centralVLayout->addWidget(createLine(HorizontalLine, centralWidget()));
+    connect(m_TitleBar, &WindowTitleBar::minimizeButtonPress, this, &MainWindow::onMinimizePress);
+    connect(m_TitleBar, &WindowTitleBar::maximizeButtonPress, this, &MainWindow::onMaximizePress);
+    connect(m_TitleBar, &WindowTitleBar::closeButtonPress,    this, &MainWindow::onClosePress);
 
     //CentralArea
     QHBoxLayout *bodyHLayout = new QHBoxLayout();
@@ -61,12 +68,23 @@ MainWindow::MainWindow(QWidget *parent) :
     setStatusBar(new QStatusBar(this));
     statusBar()->setObjectName(QString::fromUtf8("StatusBar"));
     statusBar()->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+}
 
+void MainWindow::initWinParams()
+{
+    setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMaximizeButtonHint);
+
+    HWND hwnd = (HWND)this->winId();
+    DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
+    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
+
+    const MARGINS shadow = { 5, 5, 5, 5 };
+    DwmExtendFrameIntoClientArea(HWND(winId()), &shadow);
 }
 
 void MainWindow::showColorDialog()
 {
-    QColor color = QColorDialog::getColor(color, nullptr);
+    QColor color = QColorDialog::getColor(Qt::white, nullptr);
     auto colorButton = findChild<ColorPickButton*>("ColorPickButton");
     if (color.isValid())
     {
@@ -81,6 +99,130 @@ void MainWindow::openFileDialog()
     if (!filePath.isEmpty())
     {
         m_EditWidget->setPixmap(QPixmap(filePath));
+    }
+}
+
+void MainWindow::onMinimizePress()
+{
+    showMinimized();
+}
+
+void MainWindow::onMaximizePress()
+{
+    isMaximized() ? showNormal() : showMaximized();
+}
+
+void MainWindow::onClosePress()
+{
+    close();
+}
+
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    MSG* msg = reinterpret_cast<MSG*>(message);
+
+    switch (msg->message)
+    {
+    case WM_NCCALCSIZE:
+    {
+        NCCALCSIZE_PARAMS& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(msg->lParam);
+        if (params.rgrc[0].top != 0)
+            params.rgrc[0].top -= 1;
+        *result = WVR_REDRAW;
+
+        return true;
+    }
+    case WM_NCHITTEST:
+    {
+        *result = 0;
+
+        const LONG border_width = m_borderWidth;
+        RECT winrect;
+        GetWindowRect(HWND(winId()), &winrect);
+
+        long x = GET_X_LPARAM(msg->lParam);
+        long y = GET_Y_LPARAM(msg->lParam);
+
+        if (x >= winrect.left && x < winrect.left + border_width)
+            *result = HTLEFT;
+
+        if (x < winrect.right && x >= winrect.right - border_width)
+            *result = HTRIGHT;
+
+        if (y < winrect.bottom && y >= winrect.bottom - border_width)
+            *result = HTBOTTOM;
+
+        if (y >= winrect.top && y < winrect.top + border_width)
+            *result = HTTOP;
+
+        if (x >= winrect.left && x < winrect.left + border_width &&
+                y < winrect.bottom && y >= winrect.bottom - border_width)
+        {
+            *result = HTBOTTOMLEFT;
+        }
+
+        if (x < winrect.right && x >= winrect.right - border_width &&
+                y < winrect.bottom && y >= winrect.bottom - border_width)
+        {
+            *result = HTBOTTOMRIGHT;
+        }
+
+        if (x >= winrect.left && x < winrect.left + border_width &&
+                y >= winrect.top && y < winrect.top + border_width)
+        {
+            *result = HTTOPLEFT;
+        }
+
+        if (x < winrect.right && x >= winrect.right - border_width &&
+                y >= winrect.top && y < winrect.top + border_width)
+        {
+            *result = HTTOPRIGHT;
+        }
+
+        if (0 != *result)
+            return true;
+
+        const double dpr = this->devicePixelRatioF();
+        QPoint pos = m_TitleBar->mapFromGlobal(QPoint(x / dpr, y / dpr));
+
+        if (!m_TitleBar->rect().contains(pos))
+            return false;
+
+        QWidget* child = m_TitleBar->childAt(pos);
+        if (!child)
+        {
+            *result = HTCAPTION;
+            return true;
+        }
+        else
+        {
+            if (m_TitleBar->getWhiteListWidgets().contains(child))
+            {
+                *result = HTCAPTION;
+                return true;
+            }
+        }
+        return false;
+    } //end case WM_NCHITTEST
+    case WM_GETMINMAXINFO:
+    {
+        if (::IsZoomed(msg->hwnd))
+        {
+            RECT frame = { 0, 0, 0, 0 };
+            AdjustWindowRect(&frame, WS_OVERLAPPEDWINDOW, WS_MAXIMIZE);
+            auto margins = QMargins(frame.left, frame.top, frame.right, frame.bottom) + m_Margins;
+            setContentsMargins(margins);
+        }
+        else
+        {
+            if (isMaximized())
+                setContentsMargins(m_Margins);
+        }
+        return false;
+    }
+
+    default:
+        return QMainWindow::nativeEvent(eventType, message, result);
     }
 }
 
@@ -111,7 +253,6 @@ QWidget *MainWindow::createHeaderBar()
     fileMenu->addSeparator();
     fileMenu->addAction(tr("Print"), [](){}, QKeySequence::Print);
     m_FileButton->setMenu(fileMenu);
-
 
     const QSize editButtonSize(40, 40);
     const QSize editIconSize(24, 24);
@@ -228,7 +369,7 @@ QWidget *MainWindow::createToolsButtonsPanel()
     buttonGroup->addButton(createToolsButton(QIcon(":/icons/icon_star.png"), toolsWidget));
     buttonGroup->buttons().first()->setChecked(true);
 
-    for (const auto button : buttonGroup->buttons())
+    for (const auto& button : buttonGroup->buttons())
         toolBoxHLayout->addWidget(button);
 
     toolsVLayout->addWidget(toolsLabel);
@@ -243,7 +384,7 @@ QPushButton *MainWindow::createToolsButton(QIcon icon, QWidget* parent)
     button->setCheckable(true);
     button->setFixedSize(QSize(40, 40));
     button->setIconSize(QSize(20, 20));
-    button->setCheckedIconColor(QColor("#7BCF28"));
+    button->setCheckedIconColor(QColor(0x7B, 0xCF, 0x28));
 
     return button;
 }

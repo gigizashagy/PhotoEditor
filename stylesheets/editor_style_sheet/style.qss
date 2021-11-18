@@ -29,9 +29,9 @@ QWidget:disabled
     color: #646464;
 }
 
-QMainWindow
+MainWindow
 {
-    border: 1px solid #808080;
+    background-color: #808080;
 }
 
 QMenuBar:focus

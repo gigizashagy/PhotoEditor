@@ -3,13 +3,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QMouseEvent>
-#include <QtDebug>
-
-#ifdef Q_OS_WIN
-#pragma comment (lib, "user32.lib")
-#include <qt_windows.h>
-#endif
 
 WindowTitleBar::WindowTitleBar(QWidget *widget) :
     QWidget(widget)
@@ -70,9 +63,15 @@ WindowTitleBar::WindowTitleBar(QWidget *widget) :
 
     setLayout(headerlayout);
 
-    connect(m_MinimizeButton, &QAbstractButton::clicked, this,[this](){ window()->showMinimized(); });
-    connect(m_MaximizeButton, &QAbstractButton::clicked, this,[this](){ window()->isMaximized() ? window()->showNormal() : window()->showMaximized(); });
-    connect(m_CloseButton, &QAbstractButton::clicked, this,[this](){ window()->close(); });
+    connect(m_MinimizeButton, &QAbstractButton::clicked, this, &WindowTitleBar::minimizeButtonPress);
+    connect(m_MaximizeButton, &QAbstractButton::clicked, this, &WindowTitleBar::maximizeButtonPress);
+    connect(m_CloseButton, &QAbstractButton::clicked, this, &WindowTitleBar::closeButtonPress);
+}
+
+QList<QWidget *> WindowTitleBar::getWhiteListWidgets()
+{
+    QList<QWidget*> whiteList { m_IconLabel, m_TitleLabel };
+    return whiteList;
 }
 
 QPushButton *WindowTitleBar::createButton(const QIcon &icon, QSize iconSize, QSize buttonSize)
@@ -100,30 +99,6 @@ void WindowTitleBar::updateMaximize()
             m_MaximizeButton->setIcon(m_IconsState[IconMaximized]);
             m_MaximizeButton->setToolTip(tr("Maximize"));
         }
-    }
-}
-
-void WindowTitleBar::mousePressEvent(QMouseEvent *event)
-{
-#ifdef Q_OS_WIN
-    if (ReleaseCapture())
-    {
-        QWidget* window = this->window();
-        if (window->isWindow())
-        {
-            SendMessage (HWND(window-> winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
-        }
-    }
-    event->ignore();
-#endif
-}
-
-void WindowTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    if (event->buttons() & Qt::LeftButton)
-    {
-        m_MaximizeButton->click();
-        event->accept();
     }
 }
 

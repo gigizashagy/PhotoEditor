@@ -41,9 +41,10 @@ void FileMenu::initializeAttributes()
     m_ArrowRect = QRect(QPoint(14, 1), m_ArrowSize);
     m_BorderRadius = 6;
 
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);// | Qt::NoDropShadowWindowHint);
+    setWindowFlags(windowFlags() | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
     m_ShadowEffect = new QGraphicsDropShadowEffect(this);
-    m_ShadowEffect->setBlurRadius(m_BorderRadius);
+    m_ShadowEffect->setBlurRadius(2);
+    m_ShadowEffect->setOffset(2);
     setGraphicsEffect(m_ShadowEffect);
     setAttribute(Qt::WA_TranslucentBackground);
 }
@@ -60,7 +61,7 @@ void FileMenu::paintEvent(QPaintEvent *event)
     arrowShape.lineTo(m_ArrowRect.bottomLeft());
     arrowShape.lineTo(m_ArrowRect.bottomRight());
 
-    painter.drawRoundedRect(rect(), m_BorderRadius, m_BorderRadius, Qt::AbsoluteSize);
+    painter.drawRoundedRect(rect() - QMargins(0,0,4,4), m_BorderRadius, m_BorderRadius, Qt::AbsoluteSize);
     painter.drawPath(arrowShape);
 
     QMenu::paintEvent(event);

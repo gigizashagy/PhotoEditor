@@ -27,6 +27,16 @@ protected:
     Q_SLOT void showColorDialog();
     Q_SLOT void openFileDialog();
 
+    Q_SLOT void onMinimizePress();
+    Q_SLOT void onMaximizePress();
+    Q_SLOT void onClosePress();
+    // QWidget interface
+protected:
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+
+private:
+    void initWinParams();
+
 private:
     QWidget* createHeaderBar();
     QScrollArea* createEditArea();
@@ -45,5 +55,9 @@ private:
     QPushButton* m_CopyButton;
     QLabel* m_EditWidget;
     WindowTitleBar* m_TitleBar;
+
+    bool m_bJustMaximized;
+    uint m_borderWidth;
+    QMargins m_Margins;
 };
 #endif // MAINWINDOW_H
