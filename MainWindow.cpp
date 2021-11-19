@@ -30,11 +30,10 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_bJustMaximized(false),
-    m_borderWidth(1),
+    m_borderWidth(3),
     m_Margins(1,2,1,1)
 {
     initWinParams();
-    resize(1366, 756);
     setWindowTitle("Photo Editor 1.0");
     setWindowIcon(QIcon(":/icons/PE.png"));
     setCentralWidget(new QWidget(this));
@@ -76,9 +75,9 @@ void MainWindow::initWinParams()
 
     HWND hwnd = (HWND)this->winId();
     DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
-    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
+    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME);
 
-    const MARGINS shadow = { 5, 5, 5, 5 };
+    const MARGINS shadow = { 1, 1, 12, 12 };
     DwmExtendFrameIntoClientArea(HWND(winId()), &shadow);
 }
 
@@ -123,14 +122,14 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 
     switch (msg->message)
     {
+
     case WM_NCCALCSIZE:
     {
         NCCALCSIZE_PARAMS& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(msg->lParam);
         if (params.rgrc[0].top != 0)
             params.rgrc[0].top -= 1;
         *result = WVR_REDRAW;
-
-        return true;
+        break;
     }
     case WM_NCHITTEST:
     {
@@ -179,48 +178,40 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
             *result = HTTOPRIGHT;
         }
 
-        if (0 != *result)
-            return true;
+        if (*result != 0)
+            break;
 
         const double dpr = this->devicePixelRatioF();
         QPoint pos = m_TitleBar->mapFromGlobal(QPoint(x / dpr, y / dpr));
 
         if (!m_TitleBar->rect().contains(pos))
-            return false;
+            break;
 
         QWidget* child = m_TitleBar->childAt(pos);
         if (!child)
         {
             *result = HTCAPTION;
-            return true;
+            break;
         }
         else
         {
             if (m_TitleBar->getWhiteListWidgets().contains(child))
             {
                 *result = HTCAPTION;
-                return true;
+                break;
             }
         }
-        return false;
+        break;
     } //end case WM_NCHITTEST
     case WM_GETMINMAXINFO:
     {
-        if (::IsZoomed(msg->hwnd))
-        {
-            RECT frame = { 0, 0, 0, 0 };
-            AdjustWindowRect(&frame, WS_OVERLAPPEDWINDOW, WS_MAXIMIZE);
-            auto margins = QMargins(frame.left, frame.top, frame.right, frame.bottom) + m_Margins;
-            setContentsMargins(margins);
-        }
-        else
-        {
-            if (isMaximized())
-                setContentsMargins(m_Margins);
-        }
+        MINMAXINFO* minMaxInfo = (MINMAXINFO*)msg->lParam;
+        minMaxInfo->ptMinTrackSize.x = minimumWidth();
+        minMaxInfo->ptMinTrackSize.y = minimumHeight();
+        minMaxInfo->ptMaxTrackSize.x = maximumWidth();
+        minMaxInfo->ptMaxTrackSize.y = maximumHeight();
         return false;
     }
-
     default:
         return QMainWindow::nativeEvent(eventType, message, result);
     }
