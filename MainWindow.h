@@ -23,6 +23,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() = default;
 
+    bool event(QEvent *event) override;
+
 protected:
     Q_SLOT void showColorDialog();
     Q_SLOT void openFileDialog();
@@ -30,7 +32,7 @@ protected:
     Q_SLOT void onMinimizePress();
     Q_SLOT void onMaximizePress();
     Q_SLOT void onClosePress();
-    // QWidget interface
+
 protected:
     bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 
@@ -56,8 +58,9 @@ private:
     QLabel* m_EditWidget;
     WindowTitleBar* m_TitleBar;
 
-    bool m_bJustMaximized;
-    uint m_borderWidth;
+    uint m_BorderWidth;
     QMargins m_Margins;
+    bool m_Maximized;
+
 };
 #endif // MAINWINDOW_H

@@ -29,9 +29,9 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_bJustMaximized(false),
-    m_borderWidth(3),
-    m_Margins(1,2,1,1)
+    m_BorderWidth(3),
+    m_Margins(1,2,1,1),
+    m_Maximized(false)
 {
     initWinParams();
     setWindowTitle("Photo Editor 1.0");
@@ -71,11 +71,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initWinParams()
 {
-    setWindowFlags(windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMaximizeButtonHint);
+    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
 
-    HWND hwnd = (HWND)this->winId();
+    HWND hwnd = (HWND)winId();
     DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
-    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME);
+    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME | WS_MAXIMIZEBOX);
 
     const MARGINS shadow = { 1, 1, 12, 12 };
     DwmExtendFrameIntoClientArea(HWND(winId()), &shadow);
@@ -129,13 +129,13 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         if (params.rgrc[0].top != 0)
             params.rgrc[0].top -= 1;
         *result = WVR_REDRAW;
-        break;
+        return true;
     }
     case WM_NCHITTEST:
     {
         *result = 0;
 
-        const LONG border_width = m_borderWidth;
+        const LONG border_width = m_BorderWidth;
         RECT winrect;
         GetWindowRect(HWND(winId()), &winrect);
 
@@ -179,42 +179,71 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         }
 
         if (*result != 0)
-            break;
+            return true;
 
         const double dpr = this->devicePixelRatioF();
         QPoint pos = m_TitleBar->mapFromGlobal(QPoint(x / dpr, y / dpr));
 
         if (!m_TitleBar->rect().contains(pos))
-            break;
+            return false;
 
         QWidget* child = m_TitleBar->childAt(pos);
         if (!child)
         {
             *result = HTCAPTION;
-            break;
+            return true;
         }
         else
         {
             if (m_TitleBar->getWhiteListWidgets().contains(child))
             {
                 *result = HTCAPTION;
-                break;
+                return true;
             }
         }
-        break;
     } //end case WM_NCHITTEST
     case WM_GETMINMAXINFO:
     {
-        MINMAXINFO* minMaxInfo = (MINMAXINFO*)msg->lParam;
-        minMaxInfo->ptMinTrackSize.x = minimumWidth();
-        minMaxInfo->ptMinTrackSize.y = minimumHeight();
-        minMaxInfo->ptMaxTrackSize.x = maximumWidth();
-        minMaxInfo->ptMaxTrackSize.y = maximumHeight();
+        if (::IsZoomed(msg->hwnd))
+        {
+            RECT frame = { 0, 0, 0, 0 };
+            AdjustWindowRectEx(&frame, WS_OVERLAPPEDWINDOW, FALSE, 0);
+            double dpr = devicePixelRatioF();
+            QMargins maximizeFrame(abs(frame.left) / dpr,
+                                   abs(frame.bottom) / dpr,
+                                   abs(frame.right) / dpr,
+                                   abs(frame.bottom) / dpr);
+
+            setContentsMargins(maximizeFrame + m_Margins);
+            m_Maximized = true;
+        }
+        else
+        {
+            if (m_Maximized)
+            {
+                setContentsMargins(m_Margins);
+                m_Maximized = false;
+            }
+        }
         return false;
     }
     default:
         return QMainWindow::nativeEvent(eventType, message, result);
     }
+
+}
+
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::ScreenChangeInternal)
+    {
+    // Screen movement issue, need to redraw window on same position
+        SetWindowPos((HWND) winId(), NULL, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+                     SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    }
+
+    return QMainWindow::event(event);
 }
 
 QWidget *MainWindow::createHeaderBar()
@@ -466,3 +495,4 @@ QWidget *MainWindow::createLine(MainWindow::LineType lineType, QWidget *parent)
     line->setFrameShape(static_cast<QFrame::Shape>(lineType));
     return line;
 }
+
