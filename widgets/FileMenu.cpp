@@ -1,6 +1,7 @@
 #include "FileMenu.h"
 #include <QPainter>
 #include <QGraphicsDropShadowEffect>
+#include <QPainterPath>
 
 FileMenu::FileMenu(QWidget *parent) :
     QMenu(parent)

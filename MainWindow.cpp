@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initWinParams()
 {
-    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
+    //setWindowFlags(windowFlags());// | Qt::WindowMaximizeButtonHint);
 
     HWND hwnd = (HWND)winId();
     DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
